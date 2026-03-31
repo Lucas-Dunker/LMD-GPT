@@ -1,0 +1,1 @@
+FROM models/merged/lmd-gpt.gguf
