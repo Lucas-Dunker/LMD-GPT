@@ -1,0 +1,40 @@
+# IDE
+.vscode/*
+
+# Python
+LMD-GPT_venv/*
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Claude
+CLAUDE.md
+
+
+# Environment / secrets
+.env
+*.env.local
+
+# --- Personal data---
+data/raw/
+data/processed/
+
+# Model weights (large binaries)
+models/
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.pth
+
+# Vector store (regenerable from raw data)
+vectorstore/
+
+# Training artifacts
+runs/
+wandb/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

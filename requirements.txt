@@ -1,0 +1,25 @@
+# --- Inference + embeddings (via Ollama) ---
+ollama>=0.3.0
+
+# --- Vector store ---
+chromadb>=0.5.0
+
+# --- Document parsing ---
+python-docx>=1.1.0
+pdfplumber>=0.11.0
+icalendar>=5.0.0
+pyyaml>=6.0
+
+# --- Fine-tuning ---
+# Install PyTorch separately first:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+torch>=2.3.0
+transformers>=4.43.0
+peft>=0.12.0
+datasets>=2.20.0
+accelerate>=0.32.0
+
+# bitsandbytes: install the prebuilt WSL2/Linux wheel
+# If the standard pip install fails on WSL2, use:
+#   pip install bitsandbytes --prefer-binary
+bitsandbytes>=0.43.0
