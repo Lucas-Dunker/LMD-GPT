@@ -23,7 +23,7 @@ My personal version is built off of yours truly 😉, but this setup can work fo
 ## Setup
 
 ```bash
-bash setup.sh
+bash scripts/setup.sh
 ```
 
 This installs Ollama, pulls `llama3.2:3b` and `nomic-embed-text`, installs all Python deps, and creates the data directories.
