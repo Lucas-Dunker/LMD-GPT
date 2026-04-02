@@ -65,7 +65,7 @@ Drop your exports into the appropriate folders before ingesting:
 
 ### Ingest
 
-Embed all your data into the local vector store:
+Embed all your data into the local vector store (about 30 mins on local hardware):
 
 ```bash
 python cli.py ingest

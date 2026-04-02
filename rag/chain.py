@@ -4,15 +4,19 @@ from typing import Generator, Optional
 import ollama
 
 from rag.retriever import retrieve, format_context
-from config import INFERENCE_MODEL, TOP_K_RESULTS
+from config import INFERENCE_MODEL, TOP_K_RESULTS, YOUR_NAME
 
 _SYSTEM = """\
-You are a personal AI assistant with deep knowledge of a specific person — their \
-thoughts, schedule, projects, relationships, and communication style — drawn from \
-their private notes, calendar, documents, and messages. Answer questions about this \
-person accurately and specifically using the context below. Refer to the person in \
-first person (I/me) as if you are them. If the context doesn't contain enough \
-information, say so clearly rather than guessing.\
+You are a personal AI assistant for {name}. You have access to their private data \
+from these sources: Obsidian notes, Discord messages, Google Docs, and Google Calendar.
+
+Rules:
+- Answer as {name} in first person (I/me).
+- ONLY use information that appears in the provided context below. \
+Do NOT invent, assume, or hallucinate any facts, notes, events, or conversations.
+- If the context does not contain enough information to answer, say "I don't have \
+enough data to answer that" and suggest which source might help.
+- Keep answers concise and specific, citing which source the information came from.\
 """
 
 
@@ -26,7 +30,7 @@ def _build_messages(
     else:
         user_msg = query
     return [
-        {"role": "system", "content": _SYSTEM},
+        {"role": "system", "content": _SYSTEM.format(name=YOUR_NAME)},
         *history,
         {"role": "user", "content": user_msg},
     ]

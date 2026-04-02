@@ -105,8 +105,64 @@ def iter_conversations(
             }
 
 
+def iter_conversation_windows(
+    export_dir: Path = DISCORD_DIR,
+    window_size: int = 5,
+) -> Generator[dict, None, None]:
+    """
+    Group messages into conversation windows centered on the user's messages.
+    Each window includes surrounding context so embeddings capture meaning.
+    """
+    for path in sorted(export_dir.rglob("*.json")):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+
+        guild = data.get("guild", {}).get("name", "Unknown Server")
+        channel = data.get("channel", {}).get("name", "Unknown Channel")
+
+        messages = [
+            m for m in data.get("messages", [])
+            if m.get("type") == "Default" and m.get("content", "").strip()
+        ]
+
+        for i, msg in enumerate(messages):
+            if not _is_user_message(msg.get("author", {})):
+                continue
+
+            # Grab surrounding messages for context
+            start = max(0, i - window_size)
+            end = min(len(messages), i + window_size + 1)
+            window = messages[start:end]
+
+            lines = [
+                f"{m['author']['name']}: {m['content'].strip()}"
+                for m in window
+            ]
+            # Cap at ~400 words to stay within nomic-embed-text context limit
+            # (code snippets and URLs tokenize to many more tokens than words)
+            text = "\n".join(lines)
+            words = text.split()
+            if len(words) > 400:
+                text = " ".join(words[:400])
+
+            yield {
+                "text": text,
+                "metadata": {
+                    "source": "discord",
+                    "guild": guild,
+                    "channel": channel,
+                    "author_id": msg["author"].get("id", ""),
+                    "author_name": msg["author"].get("name", ""),
+                    "timestamp": msg.get("timestamp", ""),
+                    "message_id": msg.get("id", ""),
+                },
+            }
+
+
 def load_all(export_dir: Path = DISCORD_DIR) -> list[dict]:
-    """Load only the configured user's messages for RAG ingestion."""
+    """Load user's messages grouped into conversation windows for RAG."""
     if not DISCORD_USER_ID and not DISCORD_USERNAME:
         print(
             "Warning: DISCORD_USER_ID and DISCORD_USERNAME are both unset — "
@@ -114,7 +170,7 @@ def load_all(export_dir: Path = DISCORD_DIR) -> list[dict]:
             "Set them in config.py or via environment variables."
         )
         return []
-    return list(iter_messages(export_dir, user_only=True))
+    return list(iter_conversation_windows(export_dir))
 
 
 def load_user_messages(export_dir: Path = DISCORD_DIR) -> list[dict]:
